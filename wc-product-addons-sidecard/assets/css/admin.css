@@ -1,0 +1,778 @@
+/**
+ * Admin Styles for WooCommerce Product Add-ons & Side Card
+ * Complete Layout & CSS Isolation Engine
+ */
+
+/* ==========================================================================
+   1. PANEL & WRAPPER LAYOUT (FIX WOOCOMMERCE TAB SIZING & CLIPPING)
+   ========================================================================== */
+#woocommerce-product-data #wc_pasc_addons_data.panel,
+#woocommerce-product-data .panel#wc_pasc_addons_data,
+#wc_pasc_addons_data.woocommerce_options_panel {
+	float: left !important;
+	width: 80% !important;
+	max-width: 80% !important;
+	min-height: 400px !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	border: none !important;
+	box-shadow: none !important;
+	box-sizing: border-box !important;
+	overflow: visible !important;
+	clear: none !important;
+	background: #f8fafc !important;
+}
+
+@media only screen and (max-width: 782px) {
+	#woocommerce-product-data #wc_pasc_addons_data.panel,
+	#woocommerce-product-data .panel#wc_pasc_addons_data,
+	#wc_pasc_addons_data.woocommerce_options_panel {
+		width: 100% !important;
+		max-width: 100% !important;
+		float: none !important;
+	}
+}
+
+/* Universal box-sizing reset inside our panel */
+#wc_pasc_addons_data,
+#wc_pasc_addons_data *,
+#wc_pasc_addons_data *::before,
+#wc_pasc_addons_data *::after {
+	box-sizing: border-box !important;
+}
+
+/* ==========================================================================
+   2. NEUTRALIZE WOOCOMMERCE FORM FIELD FLOATS & NEGATIVE MARGINS
+   ========================================================================== */
+#wc_pasc_addons_data label,
+#wc_pasc_addons_data .wc-pasc-label {
+	float: none !important;
+	width: 100% !important;
+	max-width: 100% !important;
+	margin: 0 0 6px 0 !important;
+	padding: 0 !important;
+	display: block !important;
+	clear: both !important;
+	text-align: left !important;
+	font-size: 13px !important;
+	font-weight: 600 !important;
+	color: #1e293b !important;
+	line-height: 1.4 !important;
+}
+
+#wc_pasc_addons_data input[type="text"],
+#wc_pasc_addons_data input[type="number"],
+#wc_pasc_addons_data select,
+#wc_pasc_addons_data textarea {
+	float: none !important;
+	width: 100% !important;
+	max-width: 100% !important;
+	margin: 0 !important;
+	padding: 8px 12px !important;
+	background-color: #ffffff !important;
+	border: 1px solid #cbd5e1 !important;
+	border-radius: 6px !important;
+	color: #0f172a !important;
+	font-size: 13px !important;
+	line-height: 1.5 !important;
+	height: 38px !important;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+	transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+
+#wc_pasc_addons_data textarea {
+	height: auto !important;
+	min-height: 80px !important;
+}
+
+#wc_pasc_addons_data input[type="text"]:focus,
+#wc_pasc_addons_data input[type="number"]:focus,
+#wc_pasc_addons_data select:focus,
+#wc_pasc_addons_data textarea:focus {
+	border-color: #4f46e5 !important;
+	box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
+	outline: none !important;
+}
+
+/* ==========================================================================
+   3. ADMIN CONTAINER & HEADER
+   ========================================================================== */
+.wc-pasc-admin-container {
+	padding: 20px 24px !important;
+	background: #f8fafc !important;
+	width: 100% !important;
+	max-width: 100% !important;
+	margin: 0 !important;
+	box-sizing: border-box !important;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+}
+
+.wc-pasc-admin-header {
+	border-bottom: 1px solid #e2e8f0;
+	padding-bottom: 16px;
+	margin-bottom: 20px;
+	width: 100% !important;
+}
+
+.wc-pasc-title-wrap h2 {
+	font-size: 18px !important;
+	font-weight: 700 !important;
+	color: #0f172a !important;
+	margin: 0 0 4px 0 !important;
+	padding: 0 !important;
+}
+
+.wc-pasc-title-wrap .description {
+	color: #64748b !important;
+	font-size: 13px !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+/* ==========================================================================
+   4. MAIN TOGGLES SECTION
+   ========================================================================== */
+.wc-pasc-main-toggles {
+	background: #ffffff !important;
+	padding: 16px 20px !important;
+	border: 1px solid #e2e8f0 !important;
+	border-radius: 10px !important;
+	margin-bottom: 24px !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+	width: 100% !important;
+}
+
+.wc-pasc-main-toggles p.form-field {
+	padding: 8px 0 !important;
+	margin: 0 !important;
+	float: none !important;
+	clear: both !important;
+	display: block !important;
+}
+
+.wc-pasc-main-toggles p.form-field label {
+	display: inline-flex !important;
+	align-items: center !important;
+	font-weight: 600 !important;
+	font-size: 13px !important;
+	color: #1e293b !important;
+	margin-bottom: 0 !important;
+	cursor: pointer !important;
+	width: auto !important;
+}
+
+.wc-pasc-main-toggles p.form-field input[type="checkbox"] {
+	margin-right: 8px !important;
+	width: 18px !important;
+	height: 18px !important;
+	float: none !important;
+}
+
+.wc-pasc-box-options-field {
+	margin-top: 14px;
+	padding-top: 14px;
+	border-top: 1px dashed #e2e8f0;
+}
+
+.wc-pasc-box-options-field textarea {
+	max-width: 100% !important;
+	font-family: monospace !important;
+	font-size: 12px !important;
+	line-height: 1.6 !important;
+}
+
+/* ==========================================================================
+   4.5 DYNAMIC PACK SIZES SECTION
+   ========================================================================== */
+.wc-pasc-pack-sizes-wrapper {
+	width: 100% !important;
+	max-width: 100% !important;
+	margin: 0 0 24px 0 !important;
+	padding: 0 !important;
+	box-sizing: border-box !important;
+}
+
+.wc-pasc-section-box {
+	background: #ffffff !important;
+	border: 1px solid #e2e8f0 !important;
+	border-radius: 10px !important;
+	padding: 20px 24px !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+	width: 100% !important;
+	box-sizing: border-box !important;
+}
+
+.wc-pasc-section-heading {
+	margin: 0 !important;
+	padding: 0 !important;
+	font-size: 15px !important;
+	font-weight: 700 !important;
+	color: #0f172a !important;
+}
+
+.wc-pasc-add-pack-btn {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 6px !important;
+	background: #10b981 !important;
+	border-color: #10b981 !important;
+	color: #ffffff !important;
+	font-weight: 600 !important;
+	font-size: 13px !important;
+	padding: 6px 16px !important;
+	height: auto !important;
+	border-radius: 8px !important;
+	box-shadow: 0 1px 3px rgba(16, 185, 129, 0.25) !important;
+	cursor: pointer !important;
+	transition: all 0.2s ease !important;
+}
+
+.wc-pasc-add-pack-btn:hover {
+	background: #059669 !important;
+	border-color: #059669 !important;
+	color: #ffffff !important;
+	transform: translateY(-1px);
+}
+
+.wc-pasc-pack-sizes-table {
+	width: 100% !important;
+	min-width: 580px !important;
+}
+
+.wc-pasc-pack-sizes-table th.col-pack-name {
+	text-align: left !important;
+}
+
+.wc-pasc-pack-sizes-table th.col-pack-pieces,
+.wc-pasc-pack-sizes-table th.col-pack-price {
+	text-align: left !important;
+}
+
+.wc-pasc-remove-pack-btn {
+	color: #94a3b8 !important;
+	text-decoration: none !important;
+	padding: 4px !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	border-radius: 4px !important;
+	transition: all 0.15s ease !important;
+}
+
+.wc-pasc-remove-pack-btn:hover {
+	color: #ef4444 !important;
+	background: #fee2e2 !important;
+}
+
+/* ==========================================================================
+   5. GROUPS WRAPPER & TOOLBAR
+   ========================================================================== */
+.wc-pasc-groups-wrapper {
+	width: 100% !important;
+	max-width: 100% !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	box-sizing: border-box !important;
+}
+
+.wc-pasc-groups-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 16px;
+	flex-wrap: wrap;
+	gap: 12px;
+	width: 100% !important;
+}
+
+.wc-pasc-groups-toolbar h3 {
+	margin: 0 !important;
+	padding: 0 !important;
+	font-size: 16px !important;
+	font-weight: 700 !important;
+	color: #1e293b !important;
+}
+
+.wc-pasc-add-group-btn {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 6px !important;
+	background: #4f46e5 !important;
+	border-color: #4f46e5 !important;
+	color: #ffffff !important;
+	font-weight: 600 !important;
+	font-size: 13px !important;
+	padding: 6px 16px !important;
+	height: auto !important;
+	border-radius: 8px !important;
+	box-shadow: 0 1px 3px rgba(79, 70, 229, 0.25) !important;
+	cursor: pointer !important;
+	transition: all 0.2s ease !important;
+}
+
+.wc-pasc-add-group-btn:hover {
+	background: #4338ca !important;
+	border-color: #4338ca !important;
+	color: #ffffff !important;
+	transform: translateY(-1px);
+}
+
+.wc-pasc-groups-list {
+	width: 100% !important;
+	max-width: 100% !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	box-sizing: border-box !important;
+}
+
+/* ==========================================================================
+   6. GROUP CARD CONTAINER
+   ========================================================================== */
+.wc-pasc-group-card {
+	background: #ffffff !important;
+	border: 1px solid #e2e8f0 !important;
+	border-radius: 10px !important;
+	margin: 0 0 20px 0 !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+	width: 100% !important;
+	max-width: 100% !important;
+	box-sizing: border-box !important;
+	overflow: visible !important;
+	transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+
+.wc-pasc-group-card:hover {
+	border-color: #cbd5e1 !important;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Header */
+.wc-pasc-group-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 14px 20px;
+	background: #f1f5f9;
+	border-bottom: 1px solid #e2e8f0;
+	border-top-left-radius: 9px;
+	border-top-right-radius: 9px;
+	cursor: move;
+	width: 100% !important;
+	box-sizing: border-box !important;
+}
+
+.wc-pasc-group-handle {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex: 1;
+	flex-wrap: wrap;
+}
+
+.wc-pasc-group-handle .dashicons-menu {
+	color: #94a3b8;
+	cursor: grab;
+	font-size: 18px;
+}
+
+.wc-pasc-group-title-preview {
+	font-weight: 700;
+	font-size: 14px;
+	color: #0f172a;
+}
+
+.wc-pasc-group-limit-badge {
+	background: #e0e7ff;
+	color: #3730a3;
+	font-size: 11px;
+	font-weight: 700;
+	padding: 3px 10px;
+	border-radius: 20px;
+	letter-spacing: 0.3px;
+	border: 1px solid #c7d2fe;
+}
+
+.wc-pasc-group-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.wc-pasc-group-actions .button {
+	padding: 4px 10px !important;
+	height: 32px !important;
+	line-height: 22px !important;
+	border-radius: 6px !important;
+	color: #64748b !important;
+	border-color: #cbd5e1 !important;
+	background: #ffffff !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+}
+
+.wc-pasc-group-actions .button:hover {
+	color: #0f172a !important;
+	border-color: #94a3b8 !important;
+	background: #f8fafc !important;
+}
+
+.wc-pasc-remove-group-btn:hover {
+	color: #e11d48 !important;
+	border-color: #fca5a5 !important;
+	background: #fff1f2 !important;
+}
+
+/* Card Body */
+.wc-pasc-group-body {
+	padding: 20px 24px !important;
+	width: 100% !important;
+	box-sizing: border-box !important;
+}
+
+/* ==========================================================================
+   7. FORM GRID SYSTEM (CSS GRID - ZERO NEGATIVE MARGINS)
+   ========================================================================== */
+.wc-pasc-form-grid {
+	display: grid !important;
+	grid-template-columns: repeat(12, 1fr) !important;
+	gap: 16px !important;
+	margin: 0 !important;
+	padding: 18px 20px !important;
+	background: #f8fafc !important;
+	border-radius: 8px !important;
+	border: 1px solid #e2e8f0 !important;
+	width: 100% !important;
+	box-sizing: border-box !important;
+}
+
+.wc-pasc-form-col {
+	display: flex !important;
+	flex-direction: column !important;
+	justify-content: flex-start !important;
+	box-sizing: border-box !important;
+	min-width: 0 !important;
+}
+
+.wc-pasc-col-12 {
+	grid-column: span 12 !important;
+}
+
+.wc-pasc-col-6 {
+	grid-column: span 6 !important;
+}
+
+.wc-pasc-col-4 {
+	grid-column: span 4 !important;
+}
+
+.wc-pasc-col-3 {
+	grid-column: span 3 !important;
+}
+
+.wc-pasc-required-indicator {
+	color: #ef4444;
+	margin-left: 2px;
+	font-weight: 700;
+}
+
+.wc-pasc-help-text {
+	display: block;
+	font-size: 11.5px;
+	color: #64748b;
+	margin-top: 4px;
+	line-height: 1.3;
+}
+
+/* Checkbox Column */
+.wc-pasc-checkbox-col {
+	margin-top: 4px !important;
+	padding-top: 12px !important;
+	border-top: 1px dashed #e2e8f0 !important;
+}
+
+.wc-pasc-checkbox-label {
+	display: inline-flex !important;
+	align-items: center !important;
+	flex-direction: row !important;
+	gap: 10px !important;
+	cursor: pointer !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	width: auto !important;
+	float: none !important;
+}
+
+.wc-pasc-checkbox-label input[type="checkbox"],
+.wc-pasc-checkbox {
+	float: none !important;
+	margin: 0 !important;
+	width: 18px !important;
+	height: 18px !important;
+	min-width: 18px !important;
+	flex-shrink: 0 !important;
+	cursor: pointer !important;
+	border-radius: 4px !important;
+}
+
+.wc-pasc-checkbox-text {
+	font-size: 13px !important;
+	font-weight: 600 !important;
+	color: #1e293b !important;
+	line-height: 1.4 !important;
+	display: inline-block !important;
+}
+
+/* ==========================================================================
+   8. OPTIONS TABLE SECTION
+   ========================================================================== */
+.wc-pasc-options-section {
+	margin-top: 24px !important;
+	padding-top: 20px !important;
+	border-top: 1px solid #e2e8f0 !important;
+	width: 100% !important;
+	box-sizing: border-box !important;
+}
+
+.wc-pasc-options-header {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	margin-bottom: 14px !important;
+	gap: 12px !important;
+	width: 100% !important;
+	box-sizing: border-box !important;
+}
+
+.wc-pasc-options-heading-wrap {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 8px !important;
+}
+
+.wc-pasc-options-heading-wrap .dashicons {
+	color: #6366f1;
+	font-size: 18px;
+}
+
+.wc-pasc-options-title {
+	margin: 0 !important;
+	padding: 0 !important;
+	font-size: 13.5px !important;
+	font-weight: 700 !important;
+	color: #1e293b !important;
+	text-transform: uppercase !important;
+	letter-spacing: 0.5px !important;
+}
+
+.wc-pasc-add-option-btn {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 5px !important;
+	font-size: 12.5px !important;
+	font-weight: 600 !important;
+	height: 32px !important;
+	line-height: 30px !important;
+	padding: 0 14px !important;
+	border-radius: 6px !important;
+	color: #4f46e5 !important;
+	border: 1px solid #c7d2fe !important;
+	background: #eef2ff !important;
+	cursor: pointer !important;
+	margin: 0 !important;
+	transition: all 0.2s ease !important;
+}
+
+.wc-pasc-add-option-btn:hover {
+	background: #4f46e5 !important;
+	color: #ffffff !important;
+	border-color: #4f46e5 !important;
+}
+
+/* Responsive Table */
+.wc-pasc-table-responsive {
+	width: 100% !important;
+	max-width: 100% !important;
+	overflow-x: auto !important;
+	border: 1px solid #e2e8f0 !important;
+	border-radius: 8px !important;
+	background: #ffffff !important;
+	box-sizing: border-box !important;
+	margin: 0 !important;
+}
+
+.wc-pasc-options-table {
+	width: 100% !important;
+	min-width: 580px !important;
+	border-collapse: collapse !important;
+	border-spacing: 0 !important;
+	margin: 0 !important;
+}
+
+.wc-pasc-options-table thead th {
+	background: #f8fafc !important;
+	color: #475569 !important;
+	font-weight: 700 !important;
+	font-size: 12px !important;
+	text-transform: uppercase !important;
+	letter-spacing: 0.4px !important;
+	padding: 10px 12px !important;
+	border-bottom: 1px solid #e2e8f0 !important;
+	text-align: left !important;
+	vertical-align: middle !important;
+}
+
+.wc-pasc-options-table thead th.col-sort,
+.wc-pasc-options-table thead th.col-default,
+.wc-pasc-options-table thead th.col-action {
+	text-align: center !important;
+}
+
+.wc-pasc-options-table tbody td {
+	padding: 8px 10px !important;
+	border-bottom: 1px solid #f1f5f9 !important;
+	vertical-align: middle !important;
+	background: #ffffff;
+}
+
+.wc-pasc-option-row:last-child td {
+	border-bottom: none !important;
+}
+
+.wc-pasc-option-row:hover td {
+	background: #fafbfc !important;
+}
+
+.wc-pasc-option-row .col-sort {
+	text-align: center !important;
+	color: #94a3b8 !important;
+	cursor: grab !important;
+	width: 36px !important;
+}
+
+.wc-pasc-table-input {
+	height: 36px !important;
+	font-size: 13px !important;
+	padding: 4px 10px !important;
+}
+
+/* Price Input with Prefix */
+.wc-pasc-price-input-wrapper {
+	display: flex;
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	overflow: hidden;
+	height: 36px;
+}
+
+.wc-pasc-currency-prefix {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 8px;
+	background: #f1f5f9;
+	color: #64748b;
+	font-size: 12px;
+	font-weight: 700;
+	border-right: 1px solid #cbd5e1;
+	height: 36px;
+	flex-shrink: 0;
+}
+
+.wc-pasc-price-field {
+	border: none !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+	height: 34px !important;
+	padding: 4px 8px !important;
+}
+
+.wc-pasc-table-checkbox-wrap {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	margin: 0 !important;
+	cursor: pointer !important;
+}
+
+.wc-pasc-table-checkbox-wrap .wc-pasc-checkbox {
+	margin: 0 !important;
+	width: 17px !important;
+	height: 17px !important;
+}
+
+.wc-pasc-option-row .col-action {
+	text-align: center !important;
+	width: 40px !important;
+}
+
+.wc-pasc-remove-option-btn {
+	color: #94a3b8 !important;
+	text-decoration: none !important;
+	padding: 4px !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	border-radius: 4px !important;
+	transition: all 0.15s ease !important;
+}
+
+.wc-pasc-remove-option-btn:hover {
+	color: #ef4444 !important;
+	background: #fee2e2 !important;
+}
+
+/* ==========================================================================
+   9. EMPTY STATE
+   ========================================================================== */
+.wc-pasc-empty-notice {
+	background: #ffffff;
+	border: 2px dashed #cbd5e1;
+	border-radius: 10px;
+	padding: 40px 24px;
+	text-align: center;
+	margin-top: 10px;
+	width: 100% !important;
+}
+
+.wc-pasc-empty-state .dashicons {
+	font-size: 42px;
+	width: 42px;
+	height: 42px;
+	color: #94a3b8;
+	margin-bottom: 12px;
+}
+
+.wc-pasc-empty-state p {
+	color: #64748b;
+	font-size: 14px;
+	margin: 0;
+	font-weight: 500;
+}
+
+/* ==========================================================================
+   10. RESPONSIVE BREAKPOINTS
+   ========================================================================== */
+@media screen and (max-width: 1050px) {
+	.wc-pasc-col-4 {
+		grid-column: span 6 !important;
+	}
+}
+
+@media screen and (max-width: 850px) {
+	.wc-pasc-col-6,
+	.wc-pasc-col-4,
+	.wc-pasc-col-3 {
+		grid-column: span 12 !important;
+	}
+
+	.wc-pasc-admin-container {
+		padding: 16px 14px !important;
+	}
+
+	.wc-pasc-group-body {
+		padding: 16px 14px !important;
+	}
+}
