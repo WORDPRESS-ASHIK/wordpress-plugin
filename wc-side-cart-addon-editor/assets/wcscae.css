@@ -1,0 +1,203 @@
+/* Hidden everywhere by default; visible only inside Xootix Side Cart. */
+.wcscae-edit { display: none !important; }
+.xoo-wsc-container .wcscae-edit {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid currentColor;
+    background: transparent;
+    padding: 6px 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1.2;
+}
+.wcscae-modal { display: none; position: fixed; inset: 0; z-index: 99999999 !important; }
+.wcscae-modal.is-open { display: block !important; }
+.wcscae-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.48); }
+.wcscae-dialog {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(92vw, 520px);
+    max-height: 82vh;
+    overflow: auto;
+    background: #fff;
+    color: #222;
+    border-radius: 10px;
+    padding: 22px;
+    box-shadow: 0 18px 60px rgba(0,0,0,.28);
+}
+.wcscae-dialog h3 { margin: 0 35px 18px 0; font-size: 20px; }
+.wcscae-x { position: absolute; top: 10px; right: 12px; border: 0; background: transparent; font-size: 28px; cursor: pointer; }
+.wcscae-field { margin: 0 0 17px; }
+.wcscae-label { display: block; font-weight: 600; margin-bottom: 7px; }
+.wcscae-field select, .wcscae-field input[type="text"], .wcscae-field input[type="number"], .wcscae-field textarea {
+    width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #ccc; border-radius: 5px; background: #fff; color: #222;
+}
+.wcscae-field textarea { min-height: 90px; resize: vertical; }
+.wcscae-choice { display: flex; gap: 8px; align-items: flex-start; margin: 7px 0; cursor: pointer; }
+.wcscae-choice input { margin-top: 3px; }
+.wcscae-description { font-size: 12px; opacity: .72; margin-top: 5px; }
+.wcscae-heading { font-weight: 700; font-size: 16px; margin: 20px 0 10px; }
+.wcscae-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 22px; }
+.wcscae-actions button { padding: 9px 14px; border-radius: 5px; cursor: pointer; }
+.wcscae-save { border: 1px solid #222; background: #222; color: #fff; }
+.wcscae-cancel { border: 1px solid #bbb; background: #fff; color: #222; }
+.wcscae-loading {
+    padding: 35px 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #555;
+}
+.wcscae-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid #e0e0e0;
+    border-top-color: #222;
+    border-radius: 50%;
+    animation: wcscae-spin 0.65s linear infinite;
+}
+@keyframes wcscae-spin {
+    to { transform: rotate(360deg); }
+}
+.wcscae-error { padding: 10px 12px; margin-bottom: 12px; background: #fff2f2; border: 1px solid #e9b8b8; border-radius: 5px; color: #8a1f1f; }
+.wcscae-unsupported { padding: 9px 10px; background: #f7f7f7; border-radius: 5px; font-size: 12px; }
+body.wcscae-modal-open { overflow: hidden; }
+
+/* Variable product quick-view modal styles */
+.wcscae-product-summary {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+}
+.wcscae-summary-image {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f8f8f8;
+}
+.wcscae-summary-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.wcscae-summary-info {
+    flex: 1;
+    min-width: 0;
+}
+.wcscae-product-title {
+    margin: 0 0 6px 0;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #111;
+}
+.wcscae-product-price-display {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+}
+.wcscae-product-price-display del {
+    opacity: 0.6;
+    margin-right: 6px;
+    font-size: 13px;
+    font-weight: normal;
+}
+.wcscae-product-price-display ins {
+    text-decoration: none;
+    color: #d0011b;
+}
+.wcscae-stock-status {
+    margin-top: 6px;
+    font-size: 13px;
+}
+.wcscae-stock-status .out-of-stock {
+    color: #cc0000;
+    margin: 0;
+    font-weight: 600;
+}
+.wcscae-stock-status .in-stock {
+    color: #198754;
+    margin: 0;
+}
+.wcscae-qty-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+.wcscae-qty-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.wcscae-qty-box .wcscae-label {
+    margin-bottom: 0;
+}
+.wcscae-qty-ctrl {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+    background: #fff;
+}
+.wcscae-qty-btn {
+    width: 32px;
+    height: 34px;
+    border: none;
+    background: #f5f5f5;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background 0.15s ease;
+}
+.wcscae-qty-btn:hover {
+    background: #e5e5e5;
+}
+.wcscae-qty-input {
+    width: 44px !important;
+    height: 34px !important;
+    border: none !important;
+    text-align: center;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 14px;
+    font-weight: 600;
+    -moz-appearance: textfield;
+}
+.wcscae-qty-input::-webkit-outer-spin-button,
+.wcscae-qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.wcscae-modal-addons-wrap {
+    margin-top: 15px;
+    padding-top: 12px;
+    border-top: 1px dashed #ddd;
+}
+.wcscae-atc-submit:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
