@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce Product Add-ons & Side Card
  * Plugin URI: https://github.com/woocommerce/wc-product-addons-sidecard
  * Description: Lightweight WooCommerce Product Add-ons plugin with a sleek restaurant side-card interface, live selection counters, maximum limits, and seamless Side Cart integration.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Antigravity
  * Author URI: https://antigravity.dev
  * Text Domain: wc-product-addons-sidecard
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'WC_PASC_VERSION', '1.0.0' );
+define( 'WC_PASC_VERSION', '1.0.1' );
 define( 'WC_PASC_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WC_PASC_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
@@ -283,6 +283,75 @@ function wc_pasc_build_box_data( $product_id, $posted_box = '' ) {
 
 	// Fallback to first configured pack
 	return reset( $packs );
+}
+
+/**
+ * Helper to check if a product has customization (Pack Sizes and/or Flavours) enabled
+ */
+function wc_pasc_product_has_customization( $product_id ) {
+	if ( ! $product_id ) {
+		return false;
+	}
+
+	$enabled         = get_post_meta( $product_id, '_wc_pasc_enabled', true );
+	$box_qty_enabled = get_post_meta( $product_id, '_wc_pasc_box_qty_enabled', true );
+	$addons          = get_post_meta( $product_id, '_wc_pasc_data', true );
+	$pack_sizes      = wc_pasc_get_product_pack_sizes( $product_id );
+
+	// If not found on variation, check parent product
+	if ( empty( $enabled ) && empty( $box_qty_enabled ) ) {
+		$parent_id = wp_get_post_parent_id( $product_id );
+		if ( $parent_id > 0 ) {
+			$enabled         = get_post_meta( $parent_id, '_wc_pasc_enabled', true );
+			$box_qty_enabled = get_post_meta( $parent_id, '_wc_pasc_box_qty_enabled', true );
+			$addons          = get_post_meta( $parent_id, '_wc_pasc_data', true );
+			$pack_sizes      = wc_pasc_get_product_pack_sizes( $parent_id );
+		}
+	}
+
+	$has_addons = ( 'yes' === $enabled && ! empty( $addons ) && is_array( $addons ) );
+	$has_boxes  = ( 'yes' === $box_qty_enabled && ! empty( $pack_sizes ) && is_array( $pack_sizes ) );
+
+	return ( $has_addons || $has_boxes );
+}
+
+/**
+ * Helper to retrieve all product IDs (including variations) that have customization enabled
+ */
+function wc_pasc_get_all_customized_product_ids() {
+	global $wpdb;
+
+	$results = $wpdb->get_col( "
+		SELECT DISTINCT post_id 
+		FROM {$wpdb->postmeta} 
+		WHERE ( meta_key = '_wc_pasc_enabled' AND meta_value = 'yes' ) 
+		   OR ( meta_key = '_wc_pasc_box_qty_enabled' AND meta_value = 'yes' )
+	" );
+
+	$custom_ids = array();
+	if ( ! empty( $results ) ) {
+		foreach ( $results as $p_id ) {
+			$p_id = intval( $p_id );
+			if ( $p_id > 0 && wc_pasc_product_has_customization( $p_id ) ) {
+				$custom_ids[] = $p_id;
+
+				// If it's a variable product, also include variation IDs
+				$variations = get_posts( array(
+					'post_parent' => $p_id,
+					'post_type'   => 'product_variation',
+					'numberposts' => -1,
+					'fields'      => 'ids',
+				) );
+				if ( ! empty( $variations ) ) {
+					foreach ( $variations as $v_id ) {
+						$custom_ids[] = intval( $v_id );
+					}
+				}
+			}
+		}
+	}
+
+	return array_values( array_unique( $custom_ids ) );
 }
 
 // Kickoff plugin

@@ -1,6 +1,6 @@
 <?php
 /**
- * Frontend Side Card Interface & Display Handler
+ * Frontend Customization Popup & Add-to-Cart Workflow Handler
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,14 +16,17 @@ class WC_PASC_Frontend {
 		// Enqueue frontend scripts & styles
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
 
-		// Customize loop add to cart button
+		// Customize loop add to cart button for products with pack sizes / addons
 		add_filter( 'woocommerce_loop_add_to_cart_link', array( $this, 'modify_loop_add_to_cart_button' ), 20, 3 );
 
-		// Single Product Page integration
-		add_action( 'woocommerce_before_add_to_cart_button', array( $this, 'render_single_product_addon_trigger' ), 15 );
+		// Flag single product page add-to-cart form if customization is enabled
+		add_action( 'woocommerce_before_add_to_cart_button', array( $this, 'render_single_product_customization_flag' ), 5 );
+		add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'render_single_product_customization_flag' ), 95 );
+		add_action( 'woocommerce_before_add_to_cart_form', array( $this, 'render_single_product_customization_flag' ), 5 );
 
-		// Append side card drawer markup shell to footer
-		add_action( 'wp_footer', array( $this, 'render_sidecard_drawer_shell' ) );
+		// Append customization popup modal markup shell to footer
+		add_action( 'wp_body_open', array( $this, 'render_sidecard_drawer_shell' ), 20 );
+		add_action( 'wp_footer', array( $this, 'render_sidecard_drawer_shell' ), 20 );
 
 		// AJAX Endpoints
 		add_action( 'wp_ajax_wc_pasc_get_sidecard', array( $this, 'ajax_get_sidecard_content' ) );
@@ -31,6 +34,9 @@ class WC_PASC_Frontend {
 
 		add_action( 'wp_ajax_wc_pasc_ajax_add_to_cart', array( $this, 'ajax_add_to_cart' ) );
 		add_action( 'wp_ajax_nopriv_wc_pasc_ajax_add_to_cart', array( $this, 'ajax_add_to_cart' ) );
+
+		add_action( 'wp_ajax_wc_pasc_check_product', array( $this, 'ajax_check_product' ) );
+		add_action( 'wp_ajax_nopriv_wc_pasc_check_product', array( $this, 'ajax_check_product' ) );
 	}
 
 	/**
@@ -52,23 +58,27 @@ class WC_PASC_Frontend {
 			true
 		);
 
+		$customized_ids = wc_pasc_get_all_customized_product_ids();
+
 		wp_localize_script(
 			'wc-pasc-frontend-script',
 			'wcPascData',
 			array(
-				'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
-				'nonce'          => wp_create_nonce( 'wc_pasc_nonce' ),
-				'currencySymbol' => get_woocommerce_currency_symbol(),
-				'currencyPos'    => get_option( 'woocommerce_currency_pos', 'left' ),
-				'decimals'       => wc_get_price_decimals(),
-				'decimalSep'     => wc_get_price_decimal_separator(),
-				'thousandSep'    => wc_get_price_thousand_separator(),
-				'i18n'           => array(
+				'ajaxUrl'               => admin_url( 'admin-ajax.php' ),
+				'nonce'                 => wp_create_nonce( 'wc_pasc_nonce' ),
+				'currencySymbol'        => get_woocommerce_currency_symbol(),
+				'currencyPos'           => get_option( 'woocommerce_currency_pos', 'left' ),
+				'decimals'              => wc_get_price_decimals(),
+				'decimalSep'            => wc_get_price_decimal_separator(),
+				'thousandSep'           => wc_get_price_thousand_separator(),
+				'customizedProductIds'  => $customized_ids,
+				'i18n'                  => array(
 					'selected'       => __( 'selected', 'wc-product-addons-sidecard' ),
 					'requiredNotice' => __( 'Please complete all required selections before adding to cart.', 'wc-product-addons-sidecard' ),
 					'maxNotice'      => __( 'You have reached the maximum selection limit for this option.', 'wc-product-addons-sidecard' ),
 					'addingToCart'   => __( 'Adding to Cart...', 'wc-product-addons-sidecard' ),
 					'addedToCart'    => __( 'Added to Cart!', 'wc-product-addons-sidecard' ),
+					'addToCart'      => __( 'Add to Cart', 'wc-product-addons-sidecard' ),
 					'customize'      => __( 'Customize Options', 'wc-product-addons-sidecard' ),
 				),
 			)
@@ -76,89 +86,90 @@ class WC_PASC_Frontend {
 	}
 
 	/**
-	 * Modify loop button if product has add-ons or box presets enabled
+	 * Modify loop button if product has pack sizes or add-ons enabled
 	 */
 	public function modify_loop_add_to_cart_link( $link, $product, $args = array() ) {
 		if ( ! $product ) {
 			return $link;
 		}
 
-		$product_id      = $product->get_id();
-		$enabled         = get_post_meta( $product_id, '_wc_pasc_enabled', true );
-		$box_qty_enabled = get_post_meta( $product_id, '_wc_pasc_box_qty_enabled', true );
-		$addons          = get_post_meta( $product_id, '_wc_pasc_data', true );
-		$pack_sizes      = wc_pasc_get_product_pack_sizes( $product_id );
+		$product_id = $product->get_id();
 
-		$has_addons = ( 'yes' === $enabled && ! empty( $addons ) );
-		$has_boxes  = ( 'yes' === $box_qty_enabled && ! empty( $pack_sizes ) );
-
-		if ( ! $has_addons && ! $has_boxes ) {
+		if ( ! wc_pasc_product_has_customization( $product_id ) ) {
 			return $link;
 		}
 
-		$custom_text = apply_filters( 'wc_pasc_loop_button_text', __( 'Customize & Add', 'wc-product-addons-sidecard' ), $product );
+		$custom_text = apply_filters( 'wc_pasc_loop_button_text', __( 'Add to Cart', 'wc-product-addons-sidecard' ), $product );
 		$classes     = isset( $args['class'] ) ? $args['class'] : 'button';
-		$classes    .= ' wc-pasc-open-sidecard-btn';
+		// Remove ajax_add_to_cart so default WooCommerce handler does not bypass popup
+		$classes     = str_replace( 'ajax_add_to_cart', '', $classes );
+		$classes    .= ' wc-pasc-open-popup-btn wc-pasc-open-sidecard-btn';
 
 		return sprintf(
-			'<a href="%s" data-product_id="%s" class="%s" data-product_sku="%s" aria-label="%s" rel="nofollow">%s</a>',
+			'<a href="%s" data-product_id="%s" data-has-customization="1" class="%s" data-product_sku="%s" aria-label="%s" rel="nofollow">%s</a>',
 			esc_url( $product->get_permalink() ),
 			esc_attr( $product_id ),
-			esc_attr( $classes ),
+			esc_attr( trim( $classes ) ),
 			esc_attr( $product->get_sku() ),
-			esc_attr( sprintf( __( 'Customize %s', 'wc-product-addons-sidecard' ), $product->get_name() ) ),
-			'<span class="wc-pasc-btn-icon">⚡</span> ' . esc_html( $custom_text )
+			esc_attr( sprintf( __( 'Select options for %s', 'wc-product-addons-sidecard' ), $product->get_name() ) ),
+			esc_html( $custom_text )
 		);
 	}
 
 	/**
-	 * Single Product Page Trigger or Inline Customizer
+	 * Flag single product form when product has customization enabled
 	 */
-	public function render_single_product_addon_trigger() {
+	public function render_single_product_customization_flag() {
 		global $product;
 		if ( ! $product ) {
 			return;
 		}
 
-		$product_id      = $product->get_id();
-		$enabled         = get_post_meta( $product_id, '_wc_pasc_enabled', true );
-		$box_qty_enabled = get_post_meta( $product_id, '_wc_pasc_box_qty_enabled', true );
-		$addons          = get_post_meta( $product_id, '_wc_pasc_data', true );
-		$pack_sizes      = wc_pasc_get_product_pack_sizes( $product_id );
-
-		$has_addons = ( 'yes' === $enabled && ! empty( $addons ) );
-		$has_boxes  = ( 'yes' === $box_qty_enabled && ! empty( $pack_sizes ) );
-
-		if ( ! $has_addons && ! $has_boxes ) {
+		$product_id = $product->get_id();
+		if ( ! wc_pasc_product_has_customization( $product_id ) ) {
 			return;
 		}
 
+		static $rendered = false;
+		if ( $rendered ) {
+			return;
+		}
+		$rendered = true;
+
 		?>
-		<div class="wc-pasc-single-trigger-box">
-			<button type="button" class="button alt wc-pasc-open-sidecard-btn wc-pasc-single-custom-btn" data-product_id="<?php echo esc_attr( $product_id ); ?>">
-				<span class="wc-pasc-magic-icon">✨</span> <?php esc_html_e( 'Customize Options & Flavours', 'wc-product-addons-sidecard' ); ?>
-			</button>
-			<p class="wc-pasc-single-tip">
-				<?php esc_html_e( 'Click to choose your flavours, pack sizes & extras before adding to cart.', 'wc-product-addons-sidecard' ); ?>
-			</p>
-		</div>
+		<input type="hidden" name="wc_pasc_has_customization" class="wc-pasc-has-customization-flag" value="1" data-product_id="<?php echo esc_attr( $product_id ); ?>" />
 		<?php
 	}
 
 	/**
-	 * Render the Global Side Card Drawer Shell
+	 * AJAX: Fast check if product has customization
+	 */
+	public function ajax_check_product() {
+		check_ajax_referer( 'wc_pasc_nonce', 'nonce' );
+		$product_id = isset( $_POST['product_id'] ) ? intval( $_POST['product_id'] ) : 0;
+		$has_custom = wc_pasc_product_has_customization( $product_id );
+		wp_send_json_success( array( 'has_customization' => $has_custom ? 1 : 0 ) );
+	}
+
+	/**
+	 * Render the Global Customization Popup Modal Shell
 	 */
 	public function render_sidecard_drawer_shell() {
+		static $rendered = false;
+		if ( $rendered ) {
+			return;
+		}
+		$rendered = true;
 		?>
 		<div id="wc-pasc-overlay" class="wc-pasc-overlay" aria-hidden="true"></div>
-		<div id="wc-pasc-sidecard" class="wc-pasc-sidecard" role="dialog" aria-modal="true" aria-labelledby="wc-pasc-product-title" aria-hidden="true">
+		<div id="wc-pasc-sidecard" class="wc-pasc-sidecard wc-pasc-modal" role="dialog" aria-modal="true" aria-labelledby="wc-pasc-product-title" aria-hidden="true">
 			
 			<div class="wc-pasc-header">
 				<div class="wc-pasc-header-info">
-					<span class="wc-pasc-badge"><?php esc_html_e( 'Customize Product', 'wc-product-addons-sidecard' ); ?></span>
-					<h3 id="wc-pasc-product-title" class="wc-pasc-title"><?php esc_html_e( 'Product Customization', 'wc-product-addons-sidecard' ); ?></h3>
+					<span class="wc-pasc-badge"><?php esc_html_e( 'Customize Your Order', 'wc-product-addons-sidecard' ); ?></span>
+					<h3 id="wc-pasc-product-title" class="wc-pasc-title"><?php esc_html_e( 'Product Options', 'wc-product-addons-sidecard' ); ?></h3>
 				</div>
-				<button type="button" class="wc-pasc-close-btn" aria-label="<?php esc_attr_e( 'Close side card', 'wc-product-addons-sidecard' ); ?>">
+				<button type="button" class="wc-pasc-close-btn" aria-label="<?php esc_attr_e( 'Close customization popup', 'wc-product-addons-sidecard' ); ?>">
 					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<line x1="18" y1="6" x2="6" y2="18"></line>
 						<line x1="6" y1="6" x2="18" y2="18"></line>
@@ -179,7 +190,7 @@ class WC_PASC_Frontend {
 	}
 
 	/**
-	 * AJAX: Get Side Card Content for a Product
+	 * AJAX: Get Side Card / Modal Content for a Product
 	 */
 	public function ajax_get_sidecard_content() {
 		check_ajax_referer( 'wc_pasc_nonce', 'nonce' );
@@ -195,6 +206,16 @@ class WC_PASC_Frontend {
 		$box_qty_enabled = get_post_meta( $product_id, '_wc_pasc_box_qty_enabled', true );
 		$addons_data     = get_post_meta( $product_id, '_wc_pasc_data', true );
 
+		// Variation fallback to parent
+		if ( empty( $enabled ) && empty( $box_qty_enabled ) && $product->is_type( 'variation' ) ) {
+			$parent_id = $product->get_parent_id();
+			if ( $parent_id > 0 ) {
+				$enabled         = get_post_meta( $parent_id, '_wc_pasc_enabled', true );
+				$box_qty_enabled = get_post_meta( $parent_id, '_wc_pasc_box_qty_enabled', true );
+				$addons_data     = get_post_meta( $parent_id, '_wc_pasc_data', true );
+			}
+		}
+
 		$image_url = wp_get_attachment_image_url( $product->get_image_id(), 'medium' );
 		if ( ! $image_url ) {
 			$image_url = wc_placeholder_img_src( 'medium' );
@@ -209,6 +230,9 @@ class WC_PASC_Frontend {
 		ob_start();
 		?>
 		<form id="wc-pasc-form" class="wc-pasc-form" data-product-id="<?php echo esc_attr( $product_id ); ?>" data-base-price="<?php echo esc_attr( $base_price ); ?>">
+			<input type="hidden" name="product_id" value="<?php echo esc_attr( $product_id ); ?>" />
+			<input type="hidden" name="action" value="wc_pasc_ajax_add_to_cart" />
+			<input type="hidden" name="nonce" value="<?php echo esc_attr( wp_create_nonce( 'wc_pasc_nonce' ) ); ?>" />
 			
 			<!-- Product Hero Card -->
 			<div class="wc-pasc-hero">
@@ -234,7 +258,7 @@ class WC_PASC_Frontend {
 				<div class="wc-pasc-section wc-pasc-box-section">
 					<div class="wc-pasc-section-header">
 						<h4 class="wc-pasc-section-title">
-							<span class="wc-pasc-icon">📦</span> <?php esc_html_e( 'Select Box / Pack Size', 'wc-product-addons-sidecard' ); ?>
+							<span class="wc-pasc-icon">📦</span> <?php esc_html_e( 'Select Pack Size', 'wc-product-addons-sidecard' ); ?>
 						</h4>
 						<span class="wc-pasc-badge wc-pasc-badge-req"><?php esc_html_e( 'Required', 'wc-product-addons-sidecard' ); ?></span>
 					</div>
@@ -268,7 +292,7 @@ class WC_PASC_Frontend {
 				</div>
 			<?php endif; ?>
 
-			<!-- Add-on Groups -->
+			<!-- Add-on / Flavour Groups -->
 			<?php if ( ! empty( $addons_data ) && is_array( $addons_data ) ) : ?>
 				<div class="wc-pasc-addons-wrapper">
 					<?php foreach ( $addons_data as $g_idx => $group ) : 
@@ -356,11 +380,11 @@ class WC_PASC_Frontend {
 				</div>
 			<?php endif; ?>
 
-			<!-- Bottom Sticky Action Bar inside the Drawer -->
+			<!-- Bottom Sticky Action Bar inside the Modal -->
 			<div class="wc-pasc-footer">
 				<div class="wc-pasc-footer-top">
 					<?php if ( ! empty( $pack_sizes ) ) : ?>
-						<!-- Pack size controls quantity, hide loose quantity stepper -->
+						<!-- Pack size controls quantity, loose quantity stepper hidden -->
 						<input type="hidden" name="quantity" class="wc-pasc-qty-input" value="1" />
 					<?php else : ?>
 						<!-- Normal Product Quantity Stepper (when Pack Sizes is disabled) -->
@@ -388,7 +412,7 @@ class WC_PASC_Frontend {
 								<circle cx="20" cy="21" r="1"></circle>
 								<path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
 							</svg>
-							<?php esc_html_e( 'Add to Order', 'wc-product-addons-sidecard' ); ?>
+							<?php esc_html_e( 'Add to Cart', 'wc-product-addons-sidecard' ); ?>
 						</span>
 						<span class="wc-pasc-btn-loader" style="display:none;"></span>
 					</button>
@@ -417,10 +441,22 @@ class WC_PASC_Frontend {
 		$quantity   = isset( $_POST['quantity'] ) ? max( 1, intval( $_POST['quantity'] ) ) : 1;
 
 		if ( ! $product_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid product.', 'wc-product-addons-sidecard' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid product ID.', 'wc-product-addons-sidecard' ) ) );
 		}
 
-		$passed_validation = apply_filters( 'woocommerce_add_to_cart_validation', true, $product_id, $quantity );
+		$product = wc_get_product( $product_id );
+		if ( ! $product ) {
+			wp_send_json_error( array( 'message' => __( 'Product not found.', 'wc-product-addons-sidecard' ) ) );
+		}
+
+		$variation_id = 0;
+		$target_id    = $product_id;
+		if ( $product->is_type( 'variation' ) ) {
+			$variation_id = $product_id;
+			$target_id    = $product->get_parent_id();
+		}
+
+		$passed_validation = apply_filters( 'woocommerce_add_to_cart_validation', true, $target_id, $quantity, $variation_id );
 
 		if ( ! $passed_validation ) {
 			$notices = wc_get_notices( 'error' );
@@ -428,7 +464,7 @@ class WC_PASC_Frontend {
 			$error_messages = array();
 			if ( ! empty( $notices ) ) {
 				foreach ( $notices as $notice ) {
-					$error_messages[] = $notice['notice'];
+					$error_messages[] = is_array( $notice ) ? $notice['notice'] : $notice;
 				}
 			}
 			wp_send_json_error(
@@ -439,15 +475,30 @@ class WC_PASC_Frontend {
 		}
 
 		// Add to cart with custom $_POST data
-		$cart_item_key = WC()->cart->add_to_cart( $product_id, $quantity );
+		$cart_item_key = WC()->cart->add_to_cart( $target_id, $quantity, $variation_id );
 
 		if ( $cart_item_key ) {
-			do_action( 'woocommerce_ajax_added_to_cart', $product_id );
+			do_action( 'woocommerce_ajax_added_to_cart', $target_id );
 
 			// Get standard WooCommerce fragments
-			WC_AJAX::get_refreshed_fragments();
+			$data = array(
+				'fragments'     => apply_filters( 'woocommerce_add_to_cart_fragments', array() ),
+				'cart_hash'     => WC()->cart->get_cart_hash(),
+				'cart_item_key' => $cart_item_key,
+				'message'       => sprintf( __( '"%s" has been added to your cart.', 'wc-product-addons-sidecard' ), $product->get_name() ),
+			);
+
+			wp_send_json_success( $data );
 		} else {
-			wp_send_json_error( array( 'message' => __( 'Could not add product to cart. Please try again.', 'wc-product-addons-sidecard' ) ) );
+			$notices = wc_get_notices( 'error' );
+			wc_clear_notices();
+			$error_messages = array();
+			if ( ! empty( $notices ) ) {
+				foreach ( $notices as $notice ) {
+					$error_messages[] = is_array( $notice ) ? $notice['notice'] : $notice;
+				}
+			}
+			wp_send_json_error( array( 'message' => ! empty( $error_messages ) ? implode( ' ', $error_messages ) : __( 'Could not add product to cart. Please try again.', 'wc-product-addons-sidecard' ) ) );
 		}
 	}
 }
